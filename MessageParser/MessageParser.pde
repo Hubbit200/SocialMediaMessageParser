@@ -245,6 +245,7 @@ void mousePressed() {
       delay(10);
       if (dataTg != null)startTelegramAnalysis();
       if (dataWh != null)startWhatsAppAnalysis();
+      if (dataIg != null)startInstagramAnalysis();
       finishAnalysis();
       state = 1;
     }
@@ -276,6 +277,7 @@ public void startTelegramAnalysis() {
 }
 
 
+
 public void startWhatsAppAnalysis() {
   for (String s : dataWh) {
     if (match(s, "[0-9]{2}+/[0-9]{2}/[0-9]{4}, [0-9]{2}:[0-9]{2}.*") != null && !split(s, " - ")[1].equals("Messages and calls are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Tap to learn more.") && !split(s, " - ")[1].equals("You blocked this contact. Tap to unblock.") && !split(s, " - ")[1].equals("You unblocked this contact.")) {
@@ -292,6 +294,14 @@ public void startWhatsAppAnalysis() {
 
   chatInfoWh = new info("", "", "whatsapp", 0);
 }
+
+
+
+public void startInstagramAnalysis(){
+  
+}
+
+
 
 public void finishAnalysis() {
   int sum = 0;
