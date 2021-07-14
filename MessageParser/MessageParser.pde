@@ -40,7 +40,7 @@ info chatInfoTg, chatInfoWh, chatInfoIg, chatInfo;
 IntDict messagesPerPerson = new IntDict();
 IntDict words = new IntDict();
 IntDict dates = new IntDict();
-StringList filterWords = new StringList("can", "ver", "ahora", "voy", "tengo", "solo", "del", "está", "pues", "hay", "más", "then", "get", "i'll", "that", "like", "don't", "or", "as", "she", "estoy", "muy", "your", "do", "on", "if", "at", "was", "in", "for", "but", "como", "o", "is", "it's", "have", "so", "with", "just", "i", "the", "q", "no", "y", "a", "de", "que", "me", "la", "el", "en", "es", "lo", "pero", "si", "se", "por", "un", "yo", "tu", "", "una", "mi", "las", "con", "te", "tu", "qué", "para", "d", "los", "le", "ha", "he", "ya", "eso", "to", "you", "and", "it", "be", "me", "al", "of", "not", "my", "i'm");
+StringList filterWords = new StringList("can", "ver", "ahora", "sé", "we", "about", "así", "tú", "voy", "tengo", "solo", "del", "está", "pues", "hay", "más", "then", "get", "i'll", "that", "like", "don't", "or", "as", "she", "estoy", "muy", "your", "do", "on", "if", "at", "was", "in", "for", "but", "como", "o", "is", "it's", "have", "so", "with", "just", "i", "the", "q", "no", "y", "a", "de", "que", "me", "la", "el", "en", "es", "lo", "pero", "si", "se", "por", "un", "yo", "tu", "", "una", "mi", "las", "con", "te", "tu", "qué", "para", "d", "los", "le", "ha", "he", "ya", "eso", "to", "you", "and", "it", "be", "me", "al", "of", "not", "my", "i'm");
 boolean wordFilter = true;
 int timeFrame, min, max;
 PVector lastLinePos = new PVector(0, 0);
@@ -125,7 +125,7 @@ public void draw() {
 
     fill(#5eb5f7);
     a = 0;
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 14; i++) {
       if (wordFilter) {
         while (filterWords.hasValue(words.keyArray()[a])) {
           a++;
@@ -172,38 +172,47 @@ public void draw() {
 
 void writeMonthInfo(int i, int m, int x) {
   textSize(16);
-  if (m == 1)text(i+"-1", 80+1050/(timeFrame-1)*x, 750);
+  if (m == 1)text(i, 80+1050/(timeFrame-1)*x, 750);
   else text(m, 80+1050/(timeFrame-1)*x, 750);
   textSize(14);
   if (m>9 && dates.hasKey(i+"-"+m)) {
+    fill(#5eb5f7);
+    text(dates.get(i+"-"+m), 80+1050/(timeFrame-1)*x, map(dates.get(i+"-"+m), min, max, 710, 460)-15);
     fill(255);
     if (lastLinePos.x!=0 || lastLinePos.y!=0)line(lastLinePos.x, lastLinePos.y, 80+1050/(timeFrame-1)*x, map(dates.get(i+"-"+m), min, max, 710, 460));
     lastLinePos = new PVector(80+1050/(timeFrame-1)*x, map(dates.get(i+"-"+m), min, max, 710, 460));
     circle(80+1050/(timeFrame-1)*x, map(dates.get(i+"-"+m), min, max, 710, 460), 10);
-    fill(#5eb5f7);
-    text(dates.get(i+"-"+m), 80+1050/(timeFrame-1)*x, map(dates.get(i+"-"+m), min, max, 710, 460)-15);
+    
   } else if (dates.hasKey(i+"-0"+m)) { 
+    fill(#5eb5f7);
+    text(dates.get(i+"-0"+m), 80+1050/(timeFrame-1)*x, map(dates.get(i+"-0"+m), min, max, 710, 460)-15);
     fill(255);
     if (lastLinePos.x!=0 || lastLinePos.y!=0)line(lastLinePos.x, lastLinePos.y, 80+1050/(timeFrame-1)*x, map(dates.get(i+"-0"+m), min, max, 710, 460));
     lastLinePos = new PVector(80+1050/(timeFrame-1)*x, map(dates.get(i+"-0"+m), min, max, 710, 460));
     circle(80+1050/(timeFrame-1)*x, map(dates.get(i+"-0"+m), min, max, 710, 460), 10);
-    fill(#5eb5f7);
-    text(dates.get(i+"-0"+m), 80+1050/(timeFrame-1)*x, map(dates.get(i+"-0"+m), min, max, 710, 460)-15);
+    
   } else {
+    fill(#5eb5f7);
+    text("0", 80+1050/(timeFrame-1)*x, 695);
     fill(255);
     if (lastLinePos.x!=0 || lastLinePos.y!=0)line(lastLinePos.x, lastLinePos.y, 80+1050/(timeFrame-1)*x, 710);
     lastLinePos = new PVector(80+1050/(timeFrame-1)*x, 710); 
     circle(80+1050/(timeFrame-1)*x, 710, 10);
-    fill(#5eb5f7);
-    text("0", 80+1050/(timeFrame-1)*x, 695);
   }
 }
 
 void writeWordInfo(int p, int pos) {
-  if (words.keyArray()[p].equals(":d"))text(":D -> "+words.get(words.keyArray()[p])+" repetitions", width/4*3, 190+27*pos);
-  else if (words.keyArray()[p].equals("i"))text("I -> "+words.get(words.keyArray()[p])+" repetitions", width/4*3, 190+27*pos);
-  else if (words.keyArray()[p].equals("i'm"))text("I'm -> "+words.get(words.keyArray()[p])+" repetitions", width/4*3, 190+27*pos);
-  else text(words.keyArray()[p]+" -> "+words.get(words.keyArray()[p])+" repetitions", width/4*3, 190+27*pos);
+  if (pos<7) {
+    if (words.keyArray()[p].equals(":d"))text(":D -> "+words.get(words.keyArray()[p])+" times", 770, 200+27*pos);
+    else if (words.keyArray()[p].equals("i"))text("I -> "+words.get(words.keyArray()[p])+" times", 770, 200+27*pos);
+    else if (words.keyArray()[p].equals("i'm"))text("I'm -> "+words.get(words.keyArray()[p])+" times", 770, 200+27*pos);
+    else text(words.keyArray()[p]+" -> "+words.get(words.keyArray()[p])+" times", 770, 200+27*pos);
+  } else {
+    if (words.keyArray()[p].equals(":d"))text(":D -> "+words.get(words.keyArray()[p])+" times", 1000, 200+27*(pos-7));
+    else if (words.keyArray()[p].equals("i"))text("I -> "+words.get(words.keyArray()[p])+" times", 1000, 200+27*(pos-7));
+    else if (words.keyArray()[p].equals("i'm"))text("I'm -> "+words.get(words.keyArray()[p])+" times", 1000, 200+27*(pos-7));
+    else text(words.keyArray()[p]+" -> "+words.get(words.keyArray()[p])+" times", 1020, 200+27*(pos-7));
+  }
 }
 
 
@@ -230,14 +239,14 @@ void mousePressed() {
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
           filePathWh = chooser.getSelectedFile().getAbsolutePath();
-          
+
           fileNameWh = chooser.getSelectedFile().getName();
           int i = 20;
           while (textWidth(fileNameWh)>200) {
             i--;
             fileNameWh = chooser.getSelectedFile().getName().substring(0, i);
           }
-          
+
           dataWh = loadStrings(filePathWh);
         }
       } else {
@@ -245,14 +254,14 @@ void mousePressed() {
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
           filePathIg = chooser.getSelectedFile().getAbsolutePath();
-          
+
           fileNameIg = chooser.getSelectedFile().getName();
           int i = 20;
           while (textWidth(fileNameIg)>200) {
             i--;
             fileNameIg = chooser.getSelectedFile().getName().substring(0, i);
           }
-          
+
           dataIg = loadJSONObject(filePathIg);
         }
       }
@@ -264,6 +273,7 @@ void mousePressed() {
       delay(10);
       if (dataTg != null)startTelegramAnalysis();
       if (dataWh != null)startWhatsAppAnalysis();
+      
       if (dataIg != null)startInstagramAnalysis();
       finishAnalysis();
       state = 1;
@@ -329,6 +339,7 @@ public void finishAnalysis() {
   if (dataTg != null)chatInfo = new info(chatInfoTg.name, chatInfoTg.type, "", sum);
   else if (dataWh != null)chatInfo = new info(chatInfoWh.name, chatInfoWh.type, "", sum);
 
+  dates.sortKeys();
   words.sortValuesReverse();
 
   if (int(dates.keyArray()[0].substring(0, 4))==int(dates.keyArray()[dates.size()-1].substring(0, 4))) timeFrame = int(dates.keyArray()[dates.size()-1].substring(5, 7))-int(dates.keyArray()[0].substring(5, 7))+1;
