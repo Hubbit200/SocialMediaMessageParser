@@ -49,7 +49,6 @@ PVector lastLinePos = new PVector(0, 0);
 public void setup() {
   size(1200, 800);
   textAlign(CENTER);
-  textSize(30);
   fill(255);
   rectMode(CORNERS);
   imageMode(CENTER);
@@ -69,6 +68,7 @@ public void setup() {
   bold = createFont("Montserrat-Bold.ttf", 20);
   extraBold = createFont("Montserrat-ExtraBold.ttf", 30);
   textFont(extraBold);
+  textSize(20);
 }
 
 public void draw() {
@@ -84,7 +84,7 @@ public void draw() {
       image(file, width/5, height/1.5);
       image(tg, width/5, height/2.5);
     }
-    text(fileNameTg, width/5.5, height/1.48);
+    text(fileNameTg, width/5.75, height/1.48);
     if (mouseY<height-200 && mouseX>400 && mouseX<width-400) {
       image(fileP, width/2, height/1.5);
       image(igP, width/2, height/2.5);
@@ -215,8 +215,14 @@ void mousePressed() {
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
           filePathTg = chooser.getSelectedFile().getAbsolutePath();
-          if(chooser.getSelectedFile().getName().length()>10)fileNameTg = chooser.getSelectedFile().getName().substring(0,10);
-          else fileNameTg = chooser.getSelectedFile().getName();
+
+          fileNameTg = chooser.getSelectedFile().getName();
+          int i = 20;
+          while (textWidth(fileNameTg)>200) {
+            i--;
+            fileNameTg = chooser.getSelectedFile().getName().substring(0, i);
+          }
+
           dataTg = loadJSONObject(filePathTg);
         }
       } else if (mouseX>width-400) {
@@ -224,8 +230,14 @@ void mousePressed() {
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
           filePathWh = chooser.getSelectedFile().getAbsolutePath();
-          if(chooser.getSelectedFile().getName().length()>10)fileNameWh = chooser.getSelectedFile().getName().substring(0,10);
-          else fileNameWh = chooser.getSelectedFile().getName();
+          
+          fileNameWh = chooser.getSelectedFile().getName();
+          int i = 20;
+          while (textWidth(fileNameWh)>200) {
+            i--;
+            fileNameWh = chooser.getSelectedFile().getName().substring(0, i);
+          }
+          
           dataWh = loadStrings(filePathWh);
         }
       } else {
@@ -233,14 +245,21 @@ void mousePressed() {
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
           filePathIg = chooser.getSelectedFile().getAbsolutePath();
-          if(chooser.getSelectedFile().getName().length()>10)fileNameIg = chooser.getSelectedFile().getName().substring(0,10);
-          else fileNameIg = chooser.getSelectedFile().getName();
+          
+          fileNameIg = chooser.getSelectedFile().getName();
+          int i = 20;
+          while (textWidth(fileNameIg)>200) {
+            i--;
+            fileNameIg = chooser.getSelectedFile().getName().substring(0, i);
+          }
+          
           dataIg = loadJSONObject(filePathIg);
         }
       }
     } else {
       state=-1;
       background(0);
+      textSize(30);
       text("Analysing...", width/2, height/2);
       delay(10);
       if (dataTg != null)startTelegramAnalysis();
@@ -297,8 +316,7 @@ public void startWhatsAppAnalysis() {
 
 
 
-public void startInstagramAnalysis(){
-  
+public void startInstagramAnalysis() {
 }
 
 
