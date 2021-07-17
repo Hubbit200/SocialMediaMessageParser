@@ -92,7 +92,7 @@ public void draw() {
       image(file, width/2, height/1.5);
       image(ig, width/2, height/2.5);
     }
-    text(fileNameIg, width/2.05, height/1.48);
+    text(fileNameIg, width/2.08, height/1.48);
     if (mouseY<height-200 && mouseX>width-400) {
       image(fileP, width/5*4, height/1.5);
       image(whP, width/5*4, height/2.5);
@@ -327,9 +327,29 @@ public void startWhatsAppAnalysis() {
 
 
 public void startInstagramAnalysis() {
+  JSONArray messages = dataIg.getJSONArray("messages");
+  
+  JSONObject message;
+  println(messages.size());
+    for (int i = 0; i < messages.size(); i++) {
+    message = messages.getJSONObject(i);
+    if (message.getString("type").equals("Generic")) {
+      dates.add(new java.text.SimpleDateFormat("yyyy-MM").format(new java.util.Date (message.getLong("timestamp_ms"))), 1);
+      messagesPerPerson.add(message.get("sender_name").toString(), 1);
+      try {
+        print(message.getString("content")+" ");
+        String[] text = message.getString("content").replace("\\w", "").toLowerCase().split("\\s+");
+        for (int t=0; t<text.length; t++) {
+          words.add(text[t], 1);
+        }
+      } 
+      catch(Exception e) {
+      }
+    }
+  }
+
+  chatInfoIg = new info("", "", "instagram", 0);
 }
-
-
 
 public void finishAnalysis() {
   int sum = 0;
@@ -338,6 +358,7 @@ public void finishAnalysis() {
   }
   if (dataTg != null)chatInfo = new info(chatInfoTg.name, chatInfoTg.type, "", sum);
   else if (dataWh != null)chatInfo = new info(chatInfoWh.name, chatInfoWh.type, "", sum);
+  else chatInfo = new info("", "", "", sum);
 
   dates.sortKeys();
   words.sortValuesReverse();
