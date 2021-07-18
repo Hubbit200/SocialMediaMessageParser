@@ -337,8 +337,8 @@ public void startInstagramAnalysis() {
       dates.add(new java.text.SimpleDateFormat("yyyy-MM").format(new java.util.Date (message.getLong("timestamp_ms"))), 1);
       messagesPerPerson.add(message.get("sender_name").toString(), 1);
       try {
-        print(message.getString("content")+" ");
-        String[] text = message.getString("content").replace("\\w", "").toLowerCase().split("\\s+");
+        String temp = new String(message.getString("content").getBytes("latin1"), "utf8");
+        String[] text = temp.replace("\\w", "").toLowerCase().split("\\s+");
         for (int t=0; t<text.length; t++) {
           words.add(text[t], 1);
         }
