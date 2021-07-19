@@ -333,7 +333,7 @@ public void startInstagramAnalysis() {
   println(messages.size());
     for (int i = 0; i < messages.size(); i++) {
     message = messages.getJSONObject(i);
-    if (message.getString("type").equals("Generic")) {
+    if (message.getString("type").equals("Generic") && message.getString("content")!=null && !message.getString("content").equals("Liked a message")) {
       dates.add(new java.text.SimpleDateFormat("yyyy-MM").format(new java.util.Date (message.getLong("timestamp_ms"))), 1);
       messagesPerPerson.add(message.get("sender_name").toString(), 1);
       try {
