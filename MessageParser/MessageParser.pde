@@ -44,14 +44,20 @@ StringList filterWords = new StringList("can", "ver", "ahora", "sé", "we", "abo
 boolean wordFilter = true;
 int timeFrame, min, max;
 PVector lastLinePos = new PVector(0, 0);
-//--------------------------------------------------------------------------------------
 
+// Setup and resource loading ----
 public void setup() {
   size(1200, 800);
   textAlign(CENTER);
   fill(255);
   rectMode(CORNERS);
   imageMode(CENTER);
+  loadResources();
+  textFont(extraBold);
+  textSize(20);
+}
+
+private void loadResources() {
   bg = loadImage("bg.png");
   menuBg = loadImage("menubg.png");
   analyse = loadImage("Analyse_U.png");
@@ -64,14 +70,13 @@ public void setup() {
   igP = loadImage("Insta_P.png");
   wh = loadImage("What_U.png");
   whP = loadImage("What_P.png");
-
   bold = createFont("Montserrat-Bold.ttf", 20);
   extraBold = createFont("Montserrat-ExtraBold.ttf", 30);
-  textFont(extraBold);
-  textSize(20);
 }
 
+// Draw calls ----
 public void draw() {
+  // If in pre-analysis menu
   if (state==0) {
     background(menuBg);
     if (mouseY>height-200)image(analyseP, width/4.5, height-130);
@@ -101,6 +106,7 @@ public void draw() {
       image(wh, width/5*4, height/2.5);
     }
     text(fileNameWh, width/5*3.87, height/1.48);
+  // Else if already analysed
   } else if (state==1) {
     background(bg);
     noStroke();
@@ -109,6 +115,7 @@ public void draw() {
     if (wordFilter)text("Most common words (filter ON):", width/4*3, 160);
     else text("Most common words (filter OFF):", width/4*3, 160);
 
+    // Message counts by username and in total
     fill(#5eb5f7);
     text(chatInfo.name + " (" + chatInfo.type + ")", width/2, 75);
     text(chatInfo.getTotal()+" messages in total", width/4, 160);
@@ -123,6 +130,7 @@ public void draw() {
       }
     }
 
+    // Most repeated words, with or without filtering
     fill(#5eb5f7);
     a = 0;
     for (int i = 0; i < 14; i++) {
@@ -138,6 +146,7 @@ public void draw() {
       }
     }
 
+    // Messages by month chart
     int x = 0;
     stroke(255);
     for (int i = int(dates.keyArray()[0].substring(0, 4)); i <= int(dates.keyArray()[dates.size()-1].substring(0, 4)); i++) {
@@ -166,10 +175,12 @@ public void draw() {
     textSize(30);
     fill(255);
     noStroke();
+    // Stop looping, as on-screen data will not need further updating
     noLoop();
   }
 }
 
+// Draw month on chart - point, month, and number
 void writeMonthInfo(int i, int m, int x) {
   textSize(16);
   if (m == 1)text(i, 80+1050/(timeFrame-1)*x, 750);
@@ -201,6 +212,7 @@ void writeMonthInfo(int i, int m, int x) {
   }
 }
 
+// Write info for specified word from array, correcting for common uppercase words (bacause all input is converted to lowercase on analysis)
 void writeWordInfo(int p, int pos) {
   if (pos<7) {
     if (words.keyArray()[p].equals(":d"))text(":D -> "+words.get(words.keyArray()[p])+" times", 770, 200+27*pos);
@@ -215,16 +227,17 @@ void writeWordInfo(int p, int pos) {
   }
 }
 
-
+// Actions on mouse pressed ----
 void mousePressed() {
+  // If on pre-analysis menu
   if (state==0) {
+    // If mouse over file input buttons
     if (mouseY<height-200) {
       if (mouseX<400) {
         chooser.setFileFilter(jsonFilter);
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
           filePathTg = chooser.getSelectedFile().getAbsolutePath();
-
           fileNameTg = chooser.getSelectedFile().getName();
           int i = 20;
           while (textWidth(fileNameTg)>200) {
@@ -239,7 +252,6 @@ void mousePressed() {
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
           filePathWh = chooser.getSelectedFile().getAbsolutePath();
-
           fileNameWh = chooser.getSelectedFile().getName();
           int i = 20;
           while (textWidth(fileNameWh)>200) {
@@ -254,7 +266,6 @@ void mousePressed() {
         int returnVal = chooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
           filePathIg = chooser.getSelectedFile().getAbsolutePath();
-
           fileNameIg = chooser.getSelectedFile().getName();
           int i = 20;
           while (textWidth(fileNameIg)>200) {
@@ -265,30 +276,34 @@ void mousePressed() {
           dataIg = loadJSONObject(filePathIg);
         }
       }
-    } else {
+    // If mouse over analyse button and at least one file selected
+    } else if (dataTg != null || dataWh != null || dataIg != null) {
       state=-1;
       background(0);
       textSize(30);
       text("Analysing...", width/2, height/2);
       delay(10);
+      // Don't analyse chat type if no file selected (null)
       if (dataTg != null)startTelegramAnalysis();
       if (dataWh != null)startWhatsAppAnalysis();
-      
       if (dataIg != null)startInstagramAnalysis();
+      // Complete analysis and change state to data presentation screen
       finishAnalysis();
       state = 1;
     }
   }
 }
-//--------------------------------------------------------------------------------------
 
+// Analysis functions for each messaging service file type ----
 public void startTelegramAnalysis() {
+  // Get JSONArray from JSON input file
   JSONArray messages = dataTg.getJSONArray("messages");
-
   JSONObject message;
+  // Loop over all items in JSONArray and check if each one is a message
   for (int i = 0; i < messages.size(); i++) {
     message = messages.getJSONObject(i);
     if (message.getString("type").equals("message")) {
+      // If item is a message, add to relevant date, increment messages for relevant username, and add words to word array
       dates.add(message.getString("date").substring(0, 7), 1);
       messagesPerPerson.add(message.get("from").toString(), 1);
       try {
@@ -301,17 +316,20 @@ public void startTelegramAnalysis() {
       }
     }
   }
-
+  // Set chat information variable
   chatInfoTg = new info(dataTg.getString("name"), dataTg.getString("type"), "telegram", 0);
 }
 
-
-
 public void startWhatsAppAnalysis() {
+  StringList people = new StringList();
+  // Loop over all lines of WhatsApp input file
   for (String s : dataWh) {
     if (match(s, "[0-9]{2}+/[0-9]{2}/[0-9]{4}, [0-9]{2}:[0-9]{2}.*") != null && !split(s, " - ")[1].equals("Messages and calls are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Tap to learn more.") && !split(s, " - ")[1].equals("You blocked this contact. Tap to unblock.") && !split(s, " - ")[1].equals("You unblocked this contact.")) {
+      // If line is a message, add to relevant date, increment messages for relevant username, and add words to word array
+      String person = split(s, ":")[1].substring(5);
+      if (!people.hasValue(person)) people.append(person);
       dates.add(s.substring(6, 10)+"-"+s.substring(3, 5), 1);
-      messagesPerPerson.add(split(s, ":")[1].substring(5), 1);
+      messagesPerPerson.add(person, 1);
       if (!s.substring(split(s.substring(20), ": ")[0].length()+22).equals("<Media omitted>") && !s.substring(split(s.substring(20), ": ")[0].length()+22).equals("Missed voice call") && !s.substring(split(s.substring(20), ": ")[0].length()+22).equals("Missed group video call")) {
         String[] text = s.substring(split(s.substring(20), ": ")[0].length()+22).replace("\\w", "").toLowerCase().split("\\s+");
         for (int t=0; t<text.length; t++) {
@@ -320,20 +338,25 @@ public void startWhatsAppAnalysis() {
       }
     }
   }
-
-  chatInfoWh = new info("", "", "whatsapp", 0);
+  // Set chat information variable
+  String peopleString = "";
+  for (String p : people) {
+    peopleString += p + ", ";
+  }
+  chatInfoWh = new info(peopleString.substring(0, peopleString.length() - 2), (people.size() > 2) ? "Group chat" : "Private chat", "whatsapp", 0);
 }
 
-
-
 public void startInstagramAnalysis() {
+  StringList people = new StringList();
+  // Get JSONArray from JSON input file
   JSONArray messages = dataIg.getJSONArray("messages");
-  
   JSONObject message;
-  println(messages.size());
-    for (int i = 0; i < messages.size(); i++) {
+  // Loop over all items in JSONArray and check if each one is a message
+  for (int i = 0; i < messages.size(); i++) {
     message = messages.getJSONObject(i);
     if (message.getString("type").equals("Generic") && message.getString("content")!=null && !message.getString("content").equals("Liked a message")) {
+      // If item is a message, add username to username array if not already in it, add message to relevant date, increment messages for relevant username, and add words to word array
+      if (!people.hasValue(message.get("sender_name").toString())) people.append(message.get("sender_name").toString());
       dates.add(new java.text.SimpleDateFormat("yyyy-MM").format(new java.util.Date (message.getLong("timestamp_ms"))), 1);
       messagesPerPerson.add(message.get("sender_name").toString(), 1);
       try {
@@ -347,29 +370,38 @@ public void startInstagramAnalysis() {
       }
     }
   }
-
-  chatInfoIg = new info("", "", "instagram", 0);
+  // Set chat information variable
+  String peopleString = "";
+  for (String p : people) {
+    peopleString += p + ", ";
+  }
+  chatInfoIg = new info(peopleString.substring(0, peopleString.length() - 2), (people.size() > 2) ? "Group chat" : "Private chat", "instagram", 0);
 }
 
+// Last steps of analysis
 public void finishAnalysis() {
+  // Count total messages
   int sum = 0;
   for (int value : messagesPerPerson.valueArray()) {
     sum += value;
   }
+  // Set chat information for window title
   if (dataTg != null)chatInfo = new info(chatInfoTg.name, chatInfoTg.type, "", sum);
   else if (dataWh != null)chatInfo = new info(chatInfoWh.name, chatInfoWh.type, "", sum);
-  else chatInfo = new info("", "", "", sum);
+  else chatInfo = new info(chatInfoIg.name, chatInfoIg.type, "", sum);
 
+  // Sort date keys and sort words in inverse order to get most common first
   dates.sortKeys();
   words.sortValuesReverse();
 
+  // Set total time range of messages
   if (int(dates.keyArray()[0].substring(0, 4))==int(dates.keyArray()[dates.size()-1].substring(0, 4))) timeFrame = int(dates.keyArray()[dates.size()-1].substring(5, 7))-int(dates.keyArray()[0].substring(5, 7))+1;
   else if (int(dates.keyArray()[0].substring(0, 4))+1==int(dates.keyArray()[dates.size()-1].substring(0, 4))) timeFrame = (13-int(dates.keyArray()[0].substring(5, 7)))+int(dates.keyArray()[dates.size()-1].substring(5, 7));
   else timeFrame = (13-int(dates.keyArray()[0].substring(5, 7))) + int(dates.keyArray()[dates.size()-1].substring(5, 7)) + ((int(dates.keyArray()[dates.size()-1].substring(0, 4))-1-int(dates.keyArray()[0].substring(0, 4)))*12);
 
+  // Create array of dates sorted with the sorted date key array
   IntDict sortedDates = new IntDict(dates.keyArray(), dates.valueArray());
   sortedDates.sortValues();
   min = sortedDates.valueArray()[0];
   max = sortedDates.valueArray()[sortedDates.size()-1];
-  print(" Timeframe:"+timeFrame);
 }
